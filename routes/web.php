@@ -18,3 +18,6 @@ Route::get('/user/{id}', function ($id){
     return 'This is user '. $id;
 });
 Route::resource('posts', 'PostsController');
+Auth::routes();
+
+Route::get('/dashboard', 'DashboardController@index')->name('Dashboard');
