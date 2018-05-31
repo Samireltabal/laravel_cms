@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Post;
+use App\comments;
 
 class PostsController extends Controller
 {
@@ -15,7 +16,7 @@ class PostsController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth',['except' => ['index','show']]);
+        $this->middleware('auth',['except' => ['index','show','comment']]);
     }
     /**
      * Display a listing of the resource.
@@ -77,7 +78,27 @@ class PostsController extends Controller
         $post->save();
         return redirect('/posts')->with('success', 'Post Created');
     }
-
+    /* 
+    *   Store Comments in database 
+    *
+    *
+    **/
+    public function comment(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required',
+            'comment_body' => 'required',
+        ]);
+            echo 'Success';
+        // create post
+        $post_id =  $request->input('post_id');
+        $comment = new comments;
+        $comment->user_name = $request->input('name');
+        $comment->comment_body = $request->input('comment_body');
+        $comment->post_id = $post_id;
+        $comment->save();
+        return redirect("/posts/$post_id")->with('success', 'Comment Created');
+    }
     /**
      * Display the specified resource.
      *
@@ -87,6 +108,7 @@ class PostsController extends Controller
     public function show($id)
     {
         $post = Post::find($id);
+        $comments = comments::find($id);
         return view('posts.show')->with('post', $post);
     }
 
@@ -165,5 +187,19 @@ class PostsController extends Controller
         }
         $post->delete();
         return redirect('/posts')->with('success','Post Removed');
+    }
+    public function destroy_comment(Request $request)
+    {
+        $comment_id = $request->input('comment_id');
+        $post_id = $request->input('post_id');
+        echo " comment id = $comment_id in Post Id $post_id is going to be delete";
+        $comment = Comments::find($comment_id);
+        $post = Post::find($post_id);
+        if(auth()->user()->id !== $post->user_id ){
+            return redirect("/posts/$post->id")->with('error','You are not allowed to delete comments on this page');   
+        }
+        $comment->delete();
+        $postId = $post->id;
+        return redirect("/posts/$postId")->with('success','Comment Removed');
     }
 }

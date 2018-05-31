@@ -20,4 +20,5 @@
 			{!! Form::close() !!}
 		@endif
 	@endif
+	@include('posts.comments')
 	@endsection

@@ -14,10 +14,9 @@
 Route::get('/', 'PagesController@index');
 Route::get('/about', 'PagesController@about');
 Route::get('/services', 'PagesController@services');
-Route::get('/user/{id}', function ($id){
-    return 'This is user '. $id;
-});
+
+Route::post('/AddComment', ['as' => 'addComment', 'uses' => 'PostsController@comment']);
+Route::post('/deleteComment', ['as' => 'deleteComment', 'uses' => 'PostsController@destroy_comment']);
 Route::resource('posts', 'PostsController');
 Auth::routes();
-
 Route::get('/dashboard', 'DashboardController@index')->name('Dashboard');
